@@ -34,6 +34,7 @@ object TerminalSolver : Module(
     val terminalReloadThreshold by NumberSetting("Resolve timeout", 600, 300..1200, 10, unit = "ms", desc = "The amount of time before the terminal reloads after a click wasn't registered while using click prediction.").withDependency { clickPrediction && solverSettings }
     private val cancelMelodySolver by BooleanSetting("Stop Melody Solver", false, desc = "Stops rendering the melody solver.").withDependency { solverSettings }
     val melodyTermSize by NumberSetting("Melody Size", 1.5f, 1.0..3.0, 0.1, desc = "The size of the melody terminal GUI.").withDependency { !cancelMelodySolver && solverSettings && renderType == RenderType.CUSTOM_GUI }
+    val showNumbers by BooleanSetting("Show Numbers", true, desc = "Shows numbers in the order terminal.").withDependency { solverSettings }
     val rubixMode by SelectorSetting("Rubix Mode", RubixMode.FEWEST_CLICKS, desc = "Whether the rubix solver should mix in right clicks for the fewest clicks overall, or stick to left clicks only.").withDependency { solverSettings }
 
     private val firstClickProtSettings by DropdownSetting("First Click Prot Dropdown", desc = "Options related to first click protection.")

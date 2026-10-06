@@ -1,6 +1,6 @@
 package com.odtheking.odin.features.impl.boss
 
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.SelectorSetting
 import com.odtheking.odin.events.LevelEvent
@@ -155,8 +155,8 @@ object MelodyMessage : Module(
 
     private fun update(type: Int, slot: Int): String = gson.toJson(UpdateMessage(mc.user.name, type, slot))
 
-    private val clayProgress = hashMapOf(2 to "Melody 25%", 3 to "Melody 50%", 4 to "Melody 75%")
-    private val ranges = listOf(1..5, 10..14, 19..23, 28..32, 37..41)
+    private val clayProgress = hashMapOf(2 to "Melody 33%", 3 to "Melody 67%")
+    private val ranges = listOf(1..5, 10..14, 19..23, 28..32)
 
     private fun mapToRange(value: Int): Int? {
         for (r in ranges) {

@@ -1,6 +1,6 @@
 package com.odtheking.odin.features.impl.dungeon
 
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.ColorSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
@@ -31,19 +31,19 @@ object InvincibilityTimer : Module(
     private val showPhoenix by BooleanSetting("Show Phoenix Pet", true, desc = "Shows the Phoenix Pet in the HUD.").withDependency { maskCat }
 
     private val hud by HUD(name, "Shows the invincibility time in the HUD.") { example ->
-        if(!example && (onlyInDungeons && !DungeonUtils.inDungeons) || (showOnlyInBoss && !DungeonUtils.inBoss)) return@HUD 0 to 0
+        if (!example && ((onlyInDungeons && !DungeonUtils.inDungeons) || (showOnlyInBoss && !DungeonUtils.inBoss))) return@HUD 0 to 0
 
-        val visibleTypes = InvincibilityType.entries.filter { type ->
-            (when (type) {
+        val visibleTypes = if (example) InvincibilityType.entries else InvincibilityType.entries.filter { type ->
+            when (type) {
                 InvincibilityType.SPIRIT -> showSpirit
                 InvincibilityType.BONZO -> showBonzo
                 InvincibilityType.PHOENIX -> showPhoenix
-            } || example) && (when (showWhen) {
+            } && when (showWhen) {
                 ShowWhen.ALWAYS -> true
                 ShowWhen.ANY -> type.activeTime > 0 || type.currentCooldown > 0
                 ShowWhen.WHEN_ACTIVE -> type.activeTime > 0
                 ShowWhen.ON_COOLDOWN -> type.currentCooldown > 0
-            } || example)
+            }
         }.ifEmpty { return@HUD 0 to 0 }
 
         var width = 0

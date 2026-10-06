@@ -1,6 +1,6 @@
 package com.odtheking.odin.features.impl.dungeon
 
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.*
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.RenderExtractEvent
@@ -93,7 +93,7 @@ object MapInfo : Module(
         val mimicText = buildString {
             if (DungeonUtils.isFloor(6, 7)) append("${if (DungeonUtils.mimicKilled) "§a" else "§c"}M §8| ")
             append("${if (DungeonUtils.princeKilled) "§a" else "§c"}P §8| ")
-            append("${if (DungeonUtils.batKilled) "§a" else "§c"}B")
+            append("${if (DungeonUtils.batKilled > 0) "§a" else "§c"}B")
         }
 
         val cryptText = buildString {

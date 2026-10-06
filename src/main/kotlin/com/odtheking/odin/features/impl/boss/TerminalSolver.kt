@@ -1,6 +1,6 @@
 package com.odtheking.odin.features.impl.boss
 
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.*
 import com.odtheking.odin.events.GuiEvent
 import com.odtheking.odin.events.TerminalEvent
@@ -37,9 +37,9 @@ object TerminalSolver : Module(
     val showNumbers by BooleanSetting("Show Numbers", true, desc = "Shows numbers in the order terminal.").withDependency { solverSettings }
     val rubixMode by SelectorSetting("Rubix Mode", RubixMode.FEWEST_CLICKS, desc = "Whether the rubix solver should mix in right clicks for the fewest clicks overall, or stick to left clicks only.").withDependency { solverSettings }
 
-    private val firstClickProtSettings by DropdownSetting("First Click Prot Dropdown", desc = "Options related to first click protection.")
-    val firstClickProt by NumberSetting("First Click Prot", 500, 0..800, 10, unit = "ms", desc = "The amount of time after opening a terminal where clicks are blocked to prevent bans (recommended value is 500 minus your ping).").withDependency { firstClickProtSettings }
-    val shouldFirstClickProtWithTicks by BooleanSetting("Account For Server Lag", false, desc = "Prevents bans from clicking when the server lags after opening the terminal (disabled in singleplayer").withDependency { firstClickProtSettings }
+    private val firstClickProtSettings by DropdownSetting("Click Prot Dropdown", desc = "Options related to first click protection.")
+    val firstClickProt by NumberSetting("First Click Prot", 200, 0..600, 10, unit = "ms", desc = "The amount of time after opening a terminal where clicks are blocked to prevent bans (recommended value is 500 minus your ping).").withDependency { firstClickProtSettings }
+    val shouldFirstClickProtWithTicks by BooleanSetting("Server Lag", false, desc = "Prevents bans from clicking when the server lags after opening the terminal (disabled in singleplayer").withDependency { firstClickProtSettings }
     val firstClickProtTicks by NumberSetting("Lag Protection Ticks", 8, 7..16, unit = "ticks", desc = "Each tick = 50ms (recommended value is 8)").withDependency { shouldFirstClickProtWithTicks && firstClickProtSettings }
 
     private val showColors by DropdownSetting("Color Settings", desc = "Color options for the terminal solver.")
@@ -68,7 +68,8 @@ object TerminalSolver : Module(
     val melodyBackgroundColor by ColorSetting("Melody Background", Colors.gray38, true, desc = "Color of the background slot in melody.").withDependency { showColors && !cancelMelodySolver }
     private val debug by BooleanSetting("Debug", false, desc = "Shows debug terminals.").withDependency { showColors }
 
-    @JvmStatic val termSize get() = if (enabled && (renderType != RenderType.CUSTOM_GUI) && TerminalUtils.currentTerm != null) if (normalTermSize == 6) Options.AUTO_GUI_SCALE else normalTermSize else 1
+    @JvmStatic val overridesGuiScale get() = enabled && renderType != RenderType.CUSTOM_GUI && TerminalUtils.currentTerm != null
+    @JvmStatic val termSize get() = if (normalTermSize == 6) Options.AUTO_GUI_SCALE else normalTermSize
     val customGuiEnabled get() = enabled && renderType == RenderType.CUSTOM_GUI && renderMelody
     private val renderMelody get() = !(cancelMelodySolver && TerminalUtils.currentTerm?.type == TerminalTypes.MELODY)
 

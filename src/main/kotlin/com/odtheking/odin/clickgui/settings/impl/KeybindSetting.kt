@@ -1,22 +1,19 @@
 package com.odtheking.odin.clickgui.settings.impl
 
+import androidx.compose.runtime.*
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import com.mojang.blaze3d.platform.InputConstants
-import com.odtheking.odin.OdinMod
 import com.odtheking.odin.OdinMod.mc
-import com.odtheking.odin.clickgui.GuiTheme
 import com.odtheking.odin.clickgui.settings.RenderableSetting
 import com.odtheking.odin.clickgui.settings.Saving
+import com.odtheking.odin.clickgui.ui.Pill
+import com.odtheking.odin.clickgui.ui.SettingRow
 import com.odtheking.odin.utils.Colors
-import com.odtheking.odin.utils.render.roundedRectOutlined
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper
-import net.minecraft.client.KeyMapping
-import net.minecraft.client.gui.GuiGraphicsExtractor
-import net.minecraft.client.input.KeyEvent
-import net.minecraft.client.input.MouseButtonEvent
-import net.minecraft.resources.Identifier
+import com.odtheking.odin.utils.ui.compose.onFocusChanged
+import com.odtheking.odin.utils.ui.compose.onKey
+import com.odtheking.odin.utils.ui.compose.pointerInput
 
 class KeybindSetting(
     name: String,
@@ -26,23 +23,10 @@ class KeybindSetting(
 
     constructor(name: String, defaultKeyCode: Int, desc: String = "") : this(name, InputConstants.Type.KEYBOARD.getOrCreate(defaultKeyCode), desc)
 
-    override var value: InputConstants.Key
-        get() = mapping?.let { KeyMappingHelper.getBoundKeyOf(it) } ?: pending
-        set(key) {
-            pending = key
-            val mapping = mapping ?: return
-            if (mapping.matches(key)) return
-            mapping.setKey(key)
-            KeyMapping.resetMapping()
-            pendingOptionsSave = true
-        }
-
-    private var mapping: KeyMapping? = null
-    private var pending: InputConstants.Key = default
+    override var value: InputConstants.Key = default
     val boundKey: InputConstants.Key get() = value
 
     var onPress: (() -> Unit)? = null
-    private var listening = false
 
     private var namedKey: InputConstants.Key? = null
     private var keyName = ""
@@ -57,87 +41,52 @@ class KeybindSetting(
             return keyName
         }
 
-    override val clickButtons: IntArray get() = if (listening) ALL_MOUSE_BUTTONS else BOTH_BUTTONS
-
-    fun registerKeyMapping(owner: String) {
-        if (mapping != null) return
-        val label = if (name == "Keybind") owner else "$owner ($name)"
-        mapping = KeyMappingHelper.registerKeyMapping(KeyMapping(label, pending.type, pending.value, KEYBIND_CATEGORY))
-    }
-
     fun onPress(block: () -> Unit): KeybindSetting {
         onPress = block
         return this
     }
 
-    override fun render(graphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int) {
-        if (listening && !isFocused) listening = false
+    @Composable
+    override fun Content() {
+        var listening by remember { mutableStateOf(false) }
 
-        drawLabel(graphics)
-
-        val boxWidth = mc.font.width(boundName) + PADDING * 2
-        val boxX = x + width - RIGHT_PAD - boxWidth
-        val boxY = y + (height - BOX_HEIGHT) / 2
-
-        graphics.roundedRectOutlined(boxX, boxY, boxX + boxWidth, boxY + BOX_HEIGHT, GuiTheme.surface.rgba, GuiTheme.accent.rgba, 1f, GuiTheme.RADIUS)
-
-        val color = if (listening) Colors.MINECRAFT_YELLOW.rgba else Colors.WHITE.rgba
-        graphics.text(mc.font, boundName, boxX + PADDING, GuiTheme.textY(boxY, BOX_HEIGHT), color, false)
-    }
-
-    override fun onClick(event: MouseButtonEvent, doubleClick: Boolean) {
-        if (listening) {
-            value = InputConstants.Type.MOUSE.getOrCreate(event.button())
-            listening = false
-        } else if (event.button() == LEFT) listening = true
-    }
-
-    override fun keyPressed(event: KeyEvent): Boolean {
-        if (!listening) return false
-        when (event.key) {
-            InputConstants.KEY_ESCAPE, InputConstants.KEY_BACKSPACE -> value = InputConstants.UNKNOWN
-            InputConstants.KEY_RETURN -> Unit
-            else -> value = InputConstants.getKey(event)
+        SettingRow {
+            Pill(
+                { boundName },
+                color = { if (listening) Colors.MINECRAFT_YELLOW.rgba else Colors.WHITE.rgba },
+            )
+                .pointerInput { event ->
+                    when {
+                        listening -> {
+                            value = InputConstants.Type.MOUSE.getOrCreate(event.button())
+                            listening = false
+                        }
+                        event.button() == InputConstants.MOUSE_BUTTON_LEFT -> listening = true
+                        else -> return@pointerInput event.button() == InputConstants.MOUSE_BUTTON_RIGHT
+                    }
+                    true
+                }
+                .onKey { event ->
+                    if (!listening) return@onKey false
+                    when (event.key) {
+                        InputConstants.KEY_ESCAPE, InputConstants.KEY_BACKSPACE -> value = InputConstants.UNKNOWN
+                        InputConstants.KEY_RETURN -> Unit
+                        else -> value = InputConstants.getKey(event)
+                    }
+                    listening = false
+                    true
+                }
+                .onFocusChanged { if (!it) listening = false }
         }
-        listening = false
-        return true
-    }
-
-    override fun release() {
-        listening = false
     }
 
     override fun write(gson: Gson): JsonElement = JsonPrimitive(value.name)
 
     override fun read(element: JsonElement, gson: Gson) {
-        val saved = element.asString?.let(InputConstants::getKey) ?: return
-        if (mapping?.isDefault != false) value = saved
-    }
-
-    override fun reset() {
-        value = default
+        value = element.asString?.let(InputConstants::getKey) ?: return
     }
 
     companion object {
-        private const val BOX_HEIGHT = 16
-        private const val PADDING = 6
-        private const val RIGHT_PAD = 5
-
-        private val ALL_MOUSE_BUTTONS = IntArray(InputConstants.MOUSE_BUTTON_8 + 1) { it }
-
-        private val KEYBIND_CATEGORY: KeyMapping.Category =
-            KeyMapping.Category.register(Identifier.fromNamespaceAndPath(OdinMod.MOD_ID, "keybinds"))
-
-        private var pendingOptionsSave = false
-
-        fun saveOptionsIfChanged() {
-            if (!pendingOptionsSave) return
-            pendingOptionsSave = false
-            mc.execute {
-                mc.options.save()
-            }
-        }
-
         fun InputConstants.Key.isDown(): Boolean =
             type == InputConstants.Type.KEYBOARD && value >= 0 && InputConstants.isKeyDown(value)
     }

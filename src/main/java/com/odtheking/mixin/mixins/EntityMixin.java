@@ -33,7 +33,8 @@ public abstract class EntityMixin {
         boolean result = original.call(instance, path, yRot, xRot, flag);
 
         Entity entity = (Entity)(Object)this;
-        new EntityEvent.Move(entity, path.endPosition(), yRot, xRot, entity.onGround()).postAndCatch();
+        Vec3 newPos = path != null ? path.endPosition() : entity.position();
+        new EntityEvent.Move(entity, newPos, yRot, xRot, entity.onGround()).postAndCatch();
         return result;
     }
 

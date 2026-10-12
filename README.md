@@ -1,6 +1,6 @@
-# odin-next
+# odin_next
 ---
 
-This is a branch to add support for latest minecraft version.
+This is an unofficial fork with support of latest minecraft version.
 
 # OdinFabric

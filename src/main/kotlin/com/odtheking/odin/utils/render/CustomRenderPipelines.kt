@@ -14,9 +14,14 @@ object CustomRenderPipelines {
     private val NO_DEPTH = DepthStencilState(CompareOp.ALWAYS_PASS, false)
     private val TRANSLUCENT = ColorTargetState(BlendFunction.TRANSLUCENT)
 
+    // 26.3: FrontendRenderPass.setPipeline() requires the pipeline to declare exactly as many color target
+    // states as the render pass has color attachments, and vanilla's LINES_SNIPPET declares none. Without
+    // this, drawing a through-walls line render type fails with "Render pass color attachment count must
+    // match pipeline color target state count" (the level main pass has a single attachment).
     val LINES_ESP: RenderPipeline = RenderPipelines.register(
         RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
             .withDepthStencilState(NO_DEPTH)
+            .withColorTargetState(ColorTargetState.DEFAULT)
             .withLocation("odin/lines_esp")
             .build()
     )

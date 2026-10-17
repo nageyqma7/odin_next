@@ -61,7 +61,7 @@ object ClickGUI : OdinScreen(Component.literal("Click GUI")) {
     }
 
     override fun keyPressed(event: KeyEvent): Boolean {
-        if (event.key == InputConstants.KEY_F && event.hasControlDownWithQuirk()) {
+        if (event.key == InputConstants.KEYCODE_F && event.hasControlDownWithQuirk()) {
             focusSearch()
             return true
         }

@@ -1,19 +1,14 @@
 package com.odtheking.odin.utils.render
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
-import com.mojang.renderpearl.api.pipeline.BlendFunction
-import com.mojang.renderpearl.api.pipeline.ColorTargetState
-import com.mojang.renderpearl.api.pipeline.CompareOp
-import com.mojang.renderpearl.api.pipeline.DepthStencilState
-import com.mojang.renderpearl.api.pipeline.PrimitiveTopology
-import com.mojang.renderpearl.api.pipeline.RenderPipeline
+import com.mojang.renderpearl.api.pipeline.*
 import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.resources.Identifier
 
 object CustomRenderPipelines {
     private val NO_DEPTH = DepthStencilState(CompareOp.ALWAYS_PASS, true, 1f, 1f)
-    private val TRANSLUCENT = ColorTargetState(BlendFunction.TRANSLUCENT)
     private val DEPTH_WRITE = DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, true)
+    private val TRANSLUCENT = ColorTargetState(BlendFunction.TRANSLUCENT)
 
     val LINES_TRANSLUCENT_DEPTH: RenderPipeline = RenderPipelines.register(
         RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
@@ -23,10 +18,6 @@ object CustomRenderPipelines {
             .build()
     )
 
-    // 26.3: FrontendRenderPass.setPipeline() requires the pipeline to declare exactly as many color target
-    // states as the render pass has color attachments, and vanilla's LINES_SNIPPET declares none. Without
-    // this, drawing a through-walls line render type fails with "Render pass color attachment count must
-    // match pipeline color target state count" (the level main pass has a single attachment).
     val LINES_ESP: RenderPipeline = RenderPipelines.register(
         RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
             .withDepthStencilState(NO_DEPTH)

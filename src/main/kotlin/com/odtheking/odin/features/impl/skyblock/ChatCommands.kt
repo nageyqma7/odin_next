@@ -31,7 +31,7 @@ object ChatCommands : Module(
     private val privateChatCommands by BooleanSetting("Private Commands", true, "Enables private chat commands.")
     private val coopChatCommands by BooleanSetting("Co-op Commands", true, "Enables co-op chat commands.")
     private val delay by NumberSetting("Delay", 6, 0..20, 1,"Delay before executing the command. If your getting 'Woah slow down' messages, try increasing this.")
-
+    
     private val showSettings by DropdownSetting("Show Settings", desc = "Toggles which chat commands are enabled.")
     private val partyWarp by BooleanSetting("Warp", true, desc = "Executes the /party warp command.").withDependency { showSettings }
     private val coords by BooleanSetting("Coords (coords)", true, desc = "Sends your current coordinates.").withDependency { showSettings }

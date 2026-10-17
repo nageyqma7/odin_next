@@ -6,10 +6,6 @@ import net.minecraft.client.renderer.rendertype.RenderType
 
 object CustomRenderType {
 
-    // 26.3: OutputTarget / RenderSetupBuilder.setOutputTarget() were removed together with the old
-    // blaze3d render target plumbing (targets are now owned by the frame graph / LevelTargetBundle),
-    // so the ITEM_ENTITY_TARGET output target that 26.2 set here has no 26.3 equivalent.
-
     // RenderTypes.LINES, RenderTypes.LINES_TRANSLUCENT || LINES_ESP, LINES_TRANSLUCENT_ESP
 
     val LINES_ESP: RenderType = RenderType.create(

@@ -29,12 +29,13 @@ public abstract class EntityMixin {
             method = "moveOrInterpolateTo(Lnet/minecraft/world/entity/PositionPath;FFZ)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/InterpolationHandler;interpolateTo(Lnet/minecraft/world/entity/PositionPath;FFZ)Z")
     )
-     private boolean onMoveOrInterpolateTo(InterpolationHandler instance, PositionPath path, float yRot, float xRot, boolean flag, Operation<Boolean> original) {
-        boolean result = original.call(instance, path, yRot, xRot, flag);
+     private boolean onMoveOrInterpolateTo(InterpolationHandler instance, PositionPath position, float yRot, float xRot, boolean hasRotation, Operation<Boolean> original) {
+        boolean result = original.call(instance, position, yRot, xRot, hasRotation);
 
         Entity entity = (Entity)(Object)this;
-        Vec3 newPos = path != null ? path.endPosition() : entity.position();
+        Vec3 newPos = position != null ? position.endPosition() : Vec3.ZERO;
         new EntityEvent.Move(entity, newPos, yRot, xRot, entity.onGround()).postAndCatch();
+
         return result;
     }
 

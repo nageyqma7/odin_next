@@ -1,3 +1,4 @@
+import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -83,6 +84,12 @@ tasks {
         filesMatching("fabric.mod.json") {
             expand(getProperties())
         }
+    }
+
+    withType<Jar> {
+        // Local 26.3 builds: keep the maven version clean (fabric.mod.json) and
+        // stamp the MC version onto the artifact name, e.g. Odin-0.3.6-261014-local-mc26.3.jar
+        archiveVersion.set("${project.version}-mc${project.property("minecraft_version")}")
     }
 
     compileKotlin {

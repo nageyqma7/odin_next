@@ -5,7 +5,6 @@ import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import com.mojang.blaze3d.platform.InputConstants
-import com.odtheking.odin.OdinMod.mc
 import com.odtheking.odin.clickgui.settings.RenderableSetting
 import com.odtheking.odin.clickgui.settings.Saving
 import com.odtheking.odin.clickgui.ui.Pill
@@ -14,6 +13,7 @@ import com.odtheking.odin.utils.Colors
 import com.odtheking.odin.utils.ui.compose.onFocusChanged
 import com.odtheking.odin.utils.ui.compose.onKey
 import com.odtheking.odin.utils.ui.compose.pointerInput
+import org.lwjgl.sdl.SDLMouse
 
 class KeybindSetting(
     name: String,
@@ -87,7 +87,9 @@ class KeybindSetting(
     }
 
     companion object {
-        fun InputConstants.Key.isDown(): Boolean =
-            type == InputConstants.Type.KEYBOARD && value >= 0 && InputConstants.isKeyDown(value)
+        fun InputConstants.Key.isDown(): Boolean = when (type) {
+            InputConstants.Type.KEYBOARD -> InputConstants.isKeyDown(value)
+            InputConstants.Type.MOUSE -> SDLMouse.SDL_GetMouseState(null, null) and (1 shl (value - 1)) != 0
+        }
     }
 }
